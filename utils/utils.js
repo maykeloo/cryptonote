@@ -28,6 +28,14 @@ const loadAccount = async () => {
 };
 
 
+//Event handler TO DO.
+const eventHandler = async (eventName, contract) => {
+    contract.once(eventName, {
+        fromBlock: 0
+    }, (error, event) => { return event.returnValues['id']});
+    
+}
+
 
 const loadWeb3 = async () => {
     // Modern dapp browsers...

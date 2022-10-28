@@ -11,6 +11,7 @@ export const Contract = ({ }: Props) => {
     const [refresh, setRefresh] = useState<boolean>(true);
     const [contract, setContract] = useState<any>(null);
     const [testMessage, setTestMessage] = useState<any>(null);
+    const [message, setMessage] = useState<string>('');
 
     useEffect(() => {
         if (!refresh) return;
@@ -24,17 +25,32 @@ export const Contract = ({ }: Props) => {
 
     useEffect(() => {
         if(contract){
-            contract.methods.notes(1).call().then((note: { text: any; }) => {
+            contract.methods.notes(addressAccount,22).call().then((note: { text: any; }) => {
                 setTestMessage(note.text)
             })
         }
     });
+   
     
+    const addNotes = async () => {
+        console.log('dodaj notatke')
+    };
+
+    const handleInputChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+        setMessage(event.target.value);
+    };
+
+
     return (
         <div>
             <p>Metamask wallet account is: {addressAccount}</p>
             <p>Network id is: {networkId}</p>
             <p>Pierwsza wiadomść umieszczona na blockchain : {testMessage}</p>
+            <input type="text" id="message" name="message" onChange={handleInputChange} value={message}/>
+            <button onClick={()=>{
+                contract.methods.createNotes(message).send({from: addressAccount});
+                setRefresh(true);
+            }}>DUPA SEND</button>
         </div>
     );
 

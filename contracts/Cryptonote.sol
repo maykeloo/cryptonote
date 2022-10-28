@@ -2,13 +2,13 @@ pragma solidity >=0.5.0 <0.9.0;
 
 contract Cryptonote {
 
-    uint public noteCount = 0;
     struct Note{
         uint id;
         string text;
     }
 
-    mapping(uint => Note) public notes;
+    mapping(address => mapping(uint => Note)) public notes;
+    mapping(address => uint) public notesCount;
 
     event NoteCreated(
         uint id,
@@ -19,8 +19,9 @@ contract Cryptonote {
     } 
     
     function createNotes(string memory _content) public {
-        noteCount ++;
-        notes[noteCount] = Note(noteCount,_content);
+        notesCount[msg.sender]++;
+        uint noteCount = notesCount[msg.sender];
+        notes[msg.sender][noteCount] = Note(noteCount,_content);
         emit NoteCreated(noteCount, _content);
         
     }

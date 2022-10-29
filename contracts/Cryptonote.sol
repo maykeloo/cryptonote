@@ -1,5 +1,5 @@
 pragma solidity >=0.5.0 <0.9.0;
-
+pragma experimental ABIEncoderV2;
 contract Cryptonote {
 
     struct Note{
@@ -23,8 +23,17 @@ contract Cryptonote {
         uint noteCount = notesCount[msg.sender];
         notes[msg.sender][noteCount] = Note(noteCount,_content);
         emit NoteCreated(noteCount, _content);
-        
+
     }
+    
+    function getAllNotes() public view returns (Note[] memory){
+      Note[] memory allNotes = new Note[](notesCount[msg.sender]);
+      for (uint i = 0; i < notesCount[msg.sender]; i++) {
+          Note storage currentNote = notes[msg.sender][i];
+          allNotes[i] = currentNote;
+      }
+      return allNotes;
+  }
 }
 
 

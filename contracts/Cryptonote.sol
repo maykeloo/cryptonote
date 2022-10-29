@@ -23,7 +23,9 @@ contract Cryptonote {
         notes[msg.sender][noteCount] = Note(noteCount,_content);
         notesCount[msg.sender]++;
         emit NoteCreated(noteCount, _content);
-
+    }
+    function deleteNote(uint _noteId) public {
+        delete notes[msg.sender][_noteId].text;
     }
     
     function getAllNotes() public view returns (Note[] memory){

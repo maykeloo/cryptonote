@@ -15,7 +15,9 @@ export const Contract = () => {
                 console.log(note)
             })
 
-            contract.methods.getAllNotes().call({from: addressAccount}).then(console.log)
+            contract.methods.getAllNotes().call({from: addressAccount}).then((allNotes : string[]) => {
+                console.log(allNotes)
+            })
         }
     }, [contract, addressAccount]);
     

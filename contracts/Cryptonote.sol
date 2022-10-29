@@ -19,9 +19,9 @@ contract Cryptonote {
     } 
     
     function createNotes(string memory _content) public {
-        notesCount[msg.sender]++;
         uint noteCount = notesCount[msg.sender];
         notes[msg.sender][noteCount] = Note(noteCount,_content);
+        notesCount[msg.sender]++;
         emit NoteCreated(noteCount, _content);
 
     }

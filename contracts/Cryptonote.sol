@@ -14,8 +14,12 @@ contract Cryptonote {
         uint id,
         string text
     );
+
+    event NoteEdited(
+        uint id
+    );
     constructor() public{
-        createNotes("Hejo Michal");
+
     } 
     
     function createNotes(string memory _content) public {
@@ -43,6 +47,12 @@ contract Cryptonote {
         notes[to][notesCount[to]] = Note(notesCount[to],note.text);
         notesCount[to]++;
         return true;
+    }
+
+    //Nie wiem czy to działa bo w sumie tylko to napisałem i spanko poszłem :) 
+    function noteEdit(uint _noteId, string memory _text) public {
+        notes[msg.sender][_noteId].text = _text;
+        emit NoteEdited(_noteId); 
     }
 
 

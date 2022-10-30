@@ -3,8 +3,14 @@ import { load } from '../utils/utils';
 
 enum ContractReducerActionKind {
       SET_CONTRACT = "SET_CONTRACT",
-      SET_ADD_NOTE_MODE = "SET_ADD_NODE_MODE",
-      SET_REFRESH = "SET_REFRESH"
+      TOGGLE_NOTE_MODAL = "SET_ADD_NODE_MODE",
+      SET_REFRESH = "SET_REFRESH",
+      SET_ALL_NOTES = "SET_ALL_NOTES"
+}
+
+export enum ContractNoteLabelType {
+      ADD_NOTE = "ADD_NOTE",
+      SHARE_NOTE = "SHARE_NOTE"
 }
 
 interface ContractReducerAction {
@@ -17,12 +23,17 @@ interface Contract {
       networkId: number;
       cryptonoteContract: any;
       refresh: boolean,
-      toggleNoteMode: boolean
+      toggleNoteMode: {
+            opened: boolean,
+            type: ContractNoteLabelType
+      },
+      allNotes: string[]
 }
 
 interface ContextProvider extends Contract {
-      setToggleNoteMode: (state: boolean) => void,
-      addNode: (value: string) => void
+      setToggleNoteMode: (state: boolean, type: ContractNoteLabelType) => void,
+      addNode: (value: string) => void,
+      shareNote: (userId: string, nodeId: string) => void
 }
 
 // CONTEXT ------------- 
@@ -40,9 +51,10 @@ const contractReducer = (state: Contract, action: ContractReducerAction) => {
                         networkId: payload.networkId,
                         cryptonoteContract: payload.cryptonoteContract,
                         refresh: payload.refresh,
-                        toggleNoteMode: payload.toggleNoteMode
+                        toggleNoteMode: payload.toggleNoteMode,
+                        allNotes: payload.allNotes
                   }
-            case ContractReducerActionKind.SET_ADD_NOTE_MODE:
+            case ContractReducerActionKind.TOGGLE_NOTE_MODAL:
                   return {
                         ...state,
                         toggleNoteMode: payload.toggleNoteMode
@@ -51,6 +63,11 @@ const contractReducer = (state: Contract, action: ContractReducerAction) => {
                   return {
                         ...state,
                         refresh: payload.refresh
+                  }
+            case ContractReducerActionKind.SET_ALL_NOTES: 
+                  return {
+                        ...state,
+                        allNotes: payload.allNotes
                   }
             default: 
                   return state
@@ -64,9 +81,12 @@ export const ContractContextProvider = ({ children }: { children: ReactNode }) =
             networkId: 0,
             cryptonoteContract: 0,
             refresh: true,
-            toggleNoteMode: false
+            toggleNoteMode: {
+                  opened: false,
+                  type: ContractNoteLabelType.ADD_NOTE
+            },
+            allNotes: []
       });
-
 
       useEffect(() => {
             if (!state.refresh) return;
@@ -76,18 +96,24 @@ export const ContractContextProvider = ({ children }: { children: ReactNode }) =
                         cryptonoteContract: option.cryptonoteContract,
                         networkId: option.networkId,
                         refresh: false,
-                        toggleNoteMode: state.toggleNoteMode
+                        toggleNoteMode: state.toggleNoteMode,
+                        allNotes: option.cryptonoteContract.methods.getAllNotes().call({ from: state.addressAccount }).then((allNotes: string[]) => allNotes)
                   }})
                   option.cryptonoteContract.events.NoteCreated(() => dispatch({type: ContractReducerActionKind.SET_CONTRACT, payload: { ...state, refresh: true }}))
+                  option.cryptonoteContract.methods.getAllNotes().call({ from: state.addressAccount }).then((allNotes: string[]) => dispatch({type: ContractReducerActionKind.SET_ALL_NOTES, payload: { ...state, allNotes }}))
             });
+      }, [state.refresh, state.toggleNoteMode, state.cryptonoteContract, state]);
 
-      }, [state.refresh, state.toggleNoteMode, state]);
-
-      const setToggleNoteMode = (value: boolean) => {
-            dispatch({ type: ContractReducerActionKind.SET_ADD_NOTE_MODE, payload: { ...state, toggleNoteMode: value}})
+      const shareNote: ContextProvider['shareNote'] = (userId, noteId) => {
+            state.cryptonoteContract.methods._shareNotes(userId, noteId).send({from: state.addressAccount})
+            dispatch({ type: ContractReducerActionKind.TOGGLE_NOTE_MODAL, payload: { ...state, toggleNoteMode: {opened: false, type: ContractNoteLabelType.SHARE_NOTE } } })
       }
 
-      const addNote = (value: string) => {
+      const setToggleNoteMode: ContextProvider['setToggleNoteMode'] = (value, type) => {
+            dispatch({ type: ContractReducerActionKind.TOGGLE_NOTE_MODAL, payload: { ...state, toggleNoteMode: { opened: value, type: type }}})
+      }
+
+      const addNote: ContextProvider['addNode'] = (value) => {
             state.cryptonoteContract.methods.createNotes(value).send({ from: state.addressAccount });
       };
       
@@ -98,8 +124,10 @@ export const ContractContextProvider = ({ children }: { children: ReactNode }) =
                   networkId: state.networkId,
                   refresh: state.refresh,
                   toggleNoteMode: state.toggleNoteMode,
-                  setToggleNoteMode: (state) => setToggleNoteMode(state),
-                  addNode: (value) => addNote(value)
+                  allNotes: state.allNotes,
+                  setToggleNoteMode: (state, type) => setToggleNoteMode(state, type),
+                  addNode: (value) => addNote(value),
+                  shareNote: (userId, noteId) => shareNote(userId, noteId)
             }}>
                   {children}
             </ContractContext.Provider>

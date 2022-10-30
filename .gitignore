@@ -13,7 +13,8 @@
 /out/
 
 # # production
-# /build // uncomment before prod
+# /build  // change on production
+
 
 # misc
 .DS_Store

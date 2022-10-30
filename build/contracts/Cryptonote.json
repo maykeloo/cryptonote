@@ -4917,12 +4917,13 @@
     "5777": {
       "events": {},
       "links": {},
-      "address": "0xCa41836DD861F5C3ecC05163acB3b095dCfbc734",
-      "transactionHash": "0x6ceecf9491b9271de39b4ffea9c714c8584ac5d011529557c4aa00b5cd1d5108"
+      "address": "0xA77FA93fC271B0196920B74b371EC1Fbebd51AFB",
+      "transactionHash": "0xf8d79d6ce869c3a53ec5791bc9c690e386c4e46f600936694eddcf9ee415ed7d"
     }
   },
   "schemaVersion": "3.4.10",
-  "updatedAt": "2022-10-30T13:13:47.642Z",
+  "updatedAt": "2022-10-30T13:34:49.388Z",
+
   "networkType": "ethereum",
   "devdoc": {
     "methods": {}

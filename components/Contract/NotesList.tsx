@@ -1,15 +1,26 @@
+import { useEffect, useState } from "react";
+import { useContractState } from "../ContractContext";
 import { ContractNote } from "./Note";
 
-interface ContractNotesListProps {
-      notes: string[]
-}
+export const ContractNotesList = () => {
+  const { allNotes } = useContractState();
+  const [notes, setNotes] = useState<string[]>();
 
-export const ContractNotesList = ({ notes }: ContractNotesListProps) => {
+  useEffect(() => {
+    if (Array.isArray(allNotes)) {
+      setNotes([...allNotes]);
+    }
+  }, [allNotes]);
+
   return (
     <>
       <div className="sm:grid-cols-3 grid-cols-1 grid gap-8">
-            {notes.map(note => <ContractNote key={note[0]} id={note[0]} text={note[1]}/>)}
+        {notes
+          ? notes.map((note) => (
+              <ContractNote key={note[0]} id={note[0]} text={note[1]} />
+            ))
+          : null}
       </div>
     </>
   );
-}
+};

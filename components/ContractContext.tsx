@@ -1,8 +1,10 @@
-import { createContext, ReactNode, useContext, useEffect, useReducer, useState } from "react";
+import { createContext, ReactNode, useContext, useEffect, useReducer } from "react";
 import { load } from '../utils/utils';
 
 enum ContractReducerActionKind {
       SET_CONTRACT = "SET_CONTRACT",
+      SET_ADD_NOTE_MODE = "SET_ADD_NODE_MODE",
+      SET_REFRESH = "SET_REFRESH"
 }
 
 interface ContractReducerAction {
@@ -14,11 +16,17 @@ interface Contract {
       addressAccount: number;
       networkId: number;
       cryptonoteContract: any;
-      refresh: boolean
+      refresh: boolean,
+      toggleNoteMode: boolean
+}
+
+interface ContextProvider extends Contract {
+      setToggleNoteMode: (state: boolean) => void,
+      addNode: (value: string) => void
 }
 
 // CONTEXT ------------- 
-export const ContractContext = createContext<Contract | null>(null);
+export const ContractContext = createContext<ContextProvider | null>(null);
 
 
 // REDUCER -------------
@@ -32,6 +40,17 @@ const contractReducer = (state: Contract, action: ContractReducerAction) => {
                         networkId: payload.networkId,
                         cryptonoteContract: payload.cryptonoteContract,
                         refresh: payload.refresh,
+                        toggleNoteMode: payload.toggleNoteMode
+                  }
+            case ContractReducerActionKind.SET_ADD_NOTE_MODE:
+                  return {
+                        ...state,
+                        toggleNoteMode: payload.toggleNoteMode
+                  }
+            case ContractReducerActionKind.SET_REFRESH:
+                  return {
+                        ...state,
+                        refresh: payload.refresh
                   }
             default: 
                   return state
@@ -45,7 +64,9 @@ export const ContractContextProvider = ({ children }: { children: ReactNode }) =
             networkId: 0,
             cryptonoteContract: 0,
             refresh: true,
+            toggleNoteMode: false
       });
+
 
       useEffect(() => {
             if (!state.refresh) return;
@@ -54,10 +75,21 @@ export const ContractContextProvider = ({ children }: { children: ReactNode }) =
                         addressAccount: option.addressAccount,
                         cryptonoteContract: option.cryptonoteContract,
                         networkId: option.networkId,
-                        refresh: false
+                        refresh: false,
+                        toggleNoteMode: state.toggleNoteMode
                   }})
+                  option.cryptonoteContract.events.NoteCreated(() => dispatch({type: ContractReducerActionKind.SET_CONTRACT, payload: { ...state, refresh: true }}))
             });
-      }, [state.refresh]);
+
+      }, [state.refresh, state.toggleNoteMode, state]);
+
+      const setToggleNoteMode = (value: boolean) => {
+            dispatch({ type: ContractReducerActionKind.SET_ADD_NOTE_MODE, payload: { ...state, toggleNoteMode: value}})
+      }
+
+      const addNote = (value: string) => {
+            state.cryptonoteContract.methods.createNotes(value).send({ from: state.addressAccount });
+      };
       
       return (
             <ContractContext.Provider value={{
@@ -65,6 +97,9 @@ export const ContractContextProvider = ({ children }: { children: ReactNode }) =
                   cryptonoteContract: state.cryptonoteContract,
                   networkId: state.networkId,
                   refresh: state.refresh,
+                  toggleNoteMode: state.toggleNoteMode,
+                  setToggleNoteMode: (state) => setToggleNoteMode(state),
+                  addNode: (value) => addNote(value)
             }}>
                   {children}
             </ContractContext.Provider>

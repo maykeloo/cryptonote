@@ -1,32 +1,45 @@
-import { useEffect, useRef } from "react";
+import { useEffect, useState } from "react";
+import { ContractAccount } from "./Contract/Account";
+import { ContractAddNote } from "./Contract/AddNote";
 import { useContractState } from "./ContractContext";
+import { ContractNotesList } from "./Contract/NotesList";
+import { ContractNavigationLabel } from "./Contract/NavigationLabel";
 
 export const Contract = () => {
-    const { cryptonoteContract: contract, addressAccount, networkId } = useContractState();
-    const noteInputRef = useRef<HTMLInputElement>(null)
+  const {
+    cryptonoteContract: contract,
+    addressAccount,
+    networkId,
+    toggleNoteMode, 
+  } = useContractState();
+  const [activeNotes, setActiveNotes] = useState<string[]>([]);
 
-    const addNote = () => {
-        contract.methods.createNotes(noteInputRef.current?.value).send({from: addressAccount})
+  useEffect(() => {
+    if (contract) {
+      contract.methods
+        .notes(addressAccount, 10)
+        .call()
+        .then((note: { text: string }) => {
+          console.log(note);
+        });
+
+      contract.methods
+        .getAllNotes()
+        .call({ from: addressAccount })
+        .then((allNotes: string[]) => {
+          setActiveNotes(allNotes);
+        });
     }
+  }, [contract, addressAccount]);
 
-    useEffect(() => {
-        if(contract){
-            contract.methods.getAllNotes().call({from: addressAccount}).then((res: any) => console.log(res))
-            contract.methods.notes(addressAccount, 10).call().then((note: { text: string; }) => {
-                console.log(note)
-            })
-
-        }
-    }, [contract, addressAccount]);
-    
-    return (
-        <div>
-            <p>Metamask wallet account is: {addressAccount}</p>
-            <p>Network id is: {networkId}</p>
-            <p>Pierwsza wiadomść umieszczona na blockchain : </p>
-            <input type="text" ref={noteInputRef} />
-            <button onClick={addNote}>Add note</button>
-        </div>
-    );
-
-}
+  return (
+    <>
+      {toggleNoteMode ? <ContractAddNote /> : null}
+      <div className="sm:p-24 p-4">
+        <ContractAccount addressAccount={addressAccount} networkId={networkId} notesCount={activeNotes.length}/>
+        <ContractNavigationLabel/>
+        <ContractNotesList notes={activeNotes}/>
+      </div>
+    </>
+  );
+};

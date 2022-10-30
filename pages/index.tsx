@@ -6,7 +6,6 @@ const Home: NextPage = () => {
   return (
     <div>
       <Contract/>
-      CRYPTONOTE TEST
     </div>
   )
 }

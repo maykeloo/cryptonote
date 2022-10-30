@@ -19,11 +19,13 @@ contract Cryptonote {
     } 
     
     function createNotes(string memory _content) public {
-        notesCount[msg.sender]++;
         uint noteCount = notesCount[msg.sender];
         notes[msg.sender][noteCount] = Note(noteCount,_content);
+        notesCount[msg.sender]++;
         emit NoteCreated(noteCount, _content);
-
+    }
+    function deleteNote(uint _noteId) public {
+        delete notes[msg.sender][_noteId].text;
     }
     
     function getAllNotes() public view returns (Note[] memory){
@@ -33,7 +35,17 @@ contract Cryptonote {
           allNotes[i] = currentNote;
       }
       return allNotes;
-  }
+    }
+
+    function _shareNotes(address to, uint noteId) public returns (bool) {
+        address noteOwner = msg.sender;
+        Note storage note = notes[noteOwner][noteId];
+        notes[to][notesCount[to]] = Note(notesCount[to],note.text);
+        notesCount[to]++;
+        return true;
+    }
+
+
 }
 
 

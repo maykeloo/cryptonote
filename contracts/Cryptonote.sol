@@ -35,7 +35,17 @@ contract Cryptonote {
           allNotes[i] = currentNote;
       }
       return allNotes;
-  }
+    }
+
+    function _shareNotes(address to, uint noteId) public returns (bool) {
+        address noteOwner = msg.sender;
+        Note storage note = notes[noteOwner][noteId];
+        notes[to][notesCount[to]] = Note(notesCount[to],note.text);
+        notesCount[to]++;
+        return true;
+    }
+
+
 }
 
 

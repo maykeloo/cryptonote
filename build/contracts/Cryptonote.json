@@ -4923,6 +4923,7 @@
   },
   "schemaVersion": "3.4.10",
   "updatedAt": "2022-10-30T13:34:49.388Z",
+
   "networkType": "ethereum",
   "devdoc": {
     "methods": {}

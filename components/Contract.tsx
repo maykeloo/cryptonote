@@ -6,6 +6,7 @@ export const Contract = () => {
     const noteInputRef = useRef<HTMLInputElement>(null)
 
     const addNote = () => {
+        //contract.methods.deleteNote(1).send({from: addressAccount}).then(console.log)
         contract.methods.createNotes(noteInputRef.current?.value).send({from: addressAccount})
     }
 

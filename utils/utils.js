@@ -1,5 +1,5 @@
 import Web3 from "web3";
-import CryptonoteContractJson from './contracts/Cryptonote.json'
+import CryptonoteContractJson from '../build/contracts/Cryptonote.json'
 
 export const load = async () =>{
     await loadWeb3();

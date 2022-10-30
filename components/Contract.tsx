@@ -11,11 +11,11 @@ export const Contract = () => {
 
     useEffect(() => {
         if(contract){
+            contract.methods.getAllNotes().call({from: addressAccount}).then((res: any) => console.log(res))
             contract.methods.notes(addressAccount, 10).call().then((note: { text: string; }) => {
                 console.log(note)
             })
 
-            contract.methods.getAllNotes().call({from: addressAccount}).then(console.log)
         }
     }, [contract, addressAccount]);
     

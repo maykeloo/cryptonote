@@ -10,7 +10,8 @@ enum ContractReducerActionKind {
 
 export enum ContractNoteLabelType {
       ADD_NOTE = "ADD_NOTE",
-      SHARE_NOTE = "SHARE_NOTE"
+      SHARE_NOTE = "SHARE_NOTE",
+      EDIT_NOTE = "EDIT_NOTE"
 }
 
 interface ContractReducerAction {
@@ -33,7 +34,8 @@ interface Contract {
 interface ContextProvider extends Contract {
       setToggleNoteMode: (state: boolean, type: ContractNoteLabelType) => void,
       addNode: (value: string) => void,
-      shareNote: (userId: string, nodeId: string) => void
+      shareNote: (userId: string, nodeId: string) => void,
+      editNote: (noteId: string, value: string) => void
 }
 
 // CONTEXT ------------- 
@@ -100,15 +102,25 @@ export const ContractContextProvider = ({ children }: { children: ReactNode }) =
                         allNotes: state.allNotes
                   }})
                   option.cryptonoteContract.events.NoteCreated(() => dispatch({type: ContractReducerActionKind.SET_CONTRACT, payload: { ...state, refresh: true }}))
-                  option.cryptonoteContract.methods.getAllNotes().call({ from: state.addressAccount }).then((allNotes: string[]) => dispatch({type: ContractReducerActionKind.SET_ALL_NOTES, payload: { ...state, allNotes }}))
+                  //option.cryptonoteContract.methods.getAllNotes().call({ from: state.addressAccount }).then((allNotes: string[]) => dispatch({type: ContractReducerActionKind.SET_ALL_NOTES, payload: { ...state, allNotes }}))
             });
       }, [state.refresh, state.toggleNoteMode, state.cryptonoteContract, state]);
 
+      if(state.cryptonoteContract){
+            state.cryptonoteContract.methods.getAllNotes().call({ from: state.addressAccount }).then((allNotes: string[]) => dispatch({type: ContractReducerActionKind.SET_ALL_NOTES, payload: { ...state, allNotes }}))
+      }
       const shareNote: ContextProvider['shareNote'] = (userId, noteId) => {
-            state.cryptonoteContract.methods._shareNotes(userId, noteId).send({from: state.addressAccount})
+            if(userId && noteId in state.allNotes){
+                  state.cryptonoteContract.methods._shareNotes(userId, noteId).send({from: state.addressAccount})
+            }
             dispatch({ type: ContractReducerActionKind.TOGGLE_NOTE_MODAL, payload: { ...state, toggleNoteMode: {opened: false, type: ContractNoteLabelType.SHARE_NOTE } } })
       }
-
+      const editNote: ContextProvider['editNote'] = (noteId, value) => {
+            if(noteId in state.allNotes && value){
+                  state.cryptonoteContract.methods.editNote(noteId,value).send({from: state.addressAccount});
+            }
+            dispatch({ type: ContractReducerActionKind.TOGGLE_NOTE_MODAL, payload: { ...state, toggleNoteMode: {opened: false, type: ContractNoteLabelType.EDIT_NOTE } } })
+      }
       const setToggleNoteMode: ContextProvider['setToggleNoteMode'] = (value, type) => {
             dispatch({ type: ContractReducerActionKind.TOGGLE_NOTE_MODAL, payload: { ...state, toggleNoteMode: { opened: value, type: type }}})
       }
@@ -127,7 +139,8 @@ export const ContractContextProvider = ({ children }: { children: ReactNode }) =
                   allNotes: state.allNotes,
                   setToggleNoteMode: (state, type) => setToggleNoteMode(state, type),
                   addNode: (value) => addNote(value),
-                  shareNote: (userId, noteId) => shareNote(userId, noteId)
+                  shareNote: (userId, noteId) => shareNote(userId, noteId),
+                  editNote: (noteId, value) => editNote(noteId, value)
             }}>
                   {children}
             </ContractContext.Provider>

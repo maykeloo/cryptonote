@@ -50,7 +50,8 @@ contract Cryptonote {
     }
 
     //Nie wiem czy to działa bo w sumie tylko to napisałem i spanko poszłem :) 
-    function noteEdit(uint _noteId, string memory _text) public {
+    // Działa :)
+    function editNote(uint _noteId, string memory _text) public {
         notes[msg.sender][_noteId].text = _text;
         emit NoteEdited(_noteId); 
     }

@@ -102,13 +102,13 @@ export const ContractContextProvider = ({ children }: { children: ReactNode }) =
                         allNotes: state.allNotes
                   }})
                   option.cryptonoteContract.events.NoteCreated(() => dispatch({type: ContractReducerActionKind.SET_CONTRACT, payload: { ...state, refresh: true }}))
-                  //option.cryptonoteContract.methods.getAllNotes().call({ from: state.addressAccount }).then((allNotes: string[]) => dispatch({type: ContractReducerActionKind.SET_ALL_NOTES, payload: { ...state, allNotes }}))
+                  option.cryptonoteContract.methods.getAllNotes().call({ from: state.addressAccount }).then((allNotes: string[]) => dispatch({type: ContractReducerActionKind.SET_ALL_NOTES, payload: { ...state, allNotes }}))
             });
       }, [state.refresh, state.toggleNoteMode, state.cryptonoteContract, state]);
 
-      if(state.cryptonoteContract){
-            state.cryptonoteContract.methods.getAllNotes().call({ from: state.addressAccount }).then((allNotes: string[]) => dispatch({type: ContractReducerActionKind.SET_ALL_NOTES, payload: { ...state, allNotes }}))
-      }
+      // if(state.cryptonoteContract){
+      //       state.cryptonoteContract.methods.getAllNotes().call({ from: state.addressAccount }).then((allNotes: string[]) => dispatch({type: ContractReducerActionKind.SET_ALL_NOTES, payload: { ...state, allNotes }}))
+      // }
       const shareNote: ContextProvider['shareNote'] = (userId, noteId) => {
             if(userId && noteId in state.allNotes){
                   state.cryptonoteContract.methods._shareNotes(userId, noteId).send({from: state.addressAccount})

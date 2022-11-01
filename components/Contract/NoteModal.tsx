@@ -27,7 +27,7 @@ export const ContractNoteModal = () => {
                               {/* EDIT NOTE */}
                               {toggleNoteMode.type === ContractNoteLabelType.EDIT_NOTE? <p className="text-white font-semibold text-2xl">Edit note</p> : null}
                               {toggleNoteMode.type === ContractNoteLabelType.EDIT_NOTE ? <textarea placeholder="Note..." ref={noteTextareaRef} className="border-0 min-h-[10rem] py-2 px-4 outline-none rounded-xl"/> : null}
-                              {toggleNoteMode.type === ContractNoteLabelType.EDIT_NOTE ?  <button className="bg-teal-600 text-white rounded-xl p-2" onClick={() => editNote(noteTextareaRef.current ? noteTextareaRef.current.value : "", toggleNoteMode.noteId)}>Edit Note</button> : null}
+                              {toggleNoteMode.type === ContractNoteLabelType.EDIT_NOTE ?  <button className="bg-teal-600 text-white rounded-xl p-2" onClick={() => editNote(noteTextareaRef.current ? noteTextareaRef.current.value : "", +toggleNoteMode.noteId)}>Edit Note</button> : null}
                         </div>
                   </div>
             </>

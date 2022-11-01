@@ -18,6 +18,9 @@ contract Cryptonote {
     event NoteEdited(
         uint id
     );
+    event NoteDeleted(
+        uint id
+    );
     constructor() public{
 
     } 
@@ -30,6 +33,7 @@ contract Cryptonote {
     }
     function deleteNote(uint _noteId) public {
         delete notes[msg.sender][_noteId].text;
+        emit NoteDeleted(_noteId);
     }
     
     function getAllNotes() public view returns (Note[] memory){

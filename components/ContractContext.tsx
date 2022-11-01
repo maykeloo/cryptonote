@@ -12,6 +12,7 @@ enum ContractReducerActionKind {
   TOGGLE_NOTE_MODAL = "TOGGLE_NOTE_MODAL",
   SET_REFRESH = "SET_REFRESH",
   SET_ALL_NOTES = "SET_ALL_NOTES",
+  DELETE_NOTE = "DELETE_NOTE",
 }
 
 export enum ContractNoteLabelType {
@@ -33,7 +34,7 @@ interface Contract {
   toggleNoteMode: {
     opened: boolean;
     type: ContractNoteLabelType;
-    noteId: number
+    noteId: number;
   };
   allNotes: string[];
 }
@@ -43,7 +44,7 @@ interface ContextProvider extends Contract {
   addNode: (value: string) => void;
   shareNote: (userId: number, nodeId: number) => void;
   editNote: (value: string, noteId: number) => void;
-  deleteNote: (noteId: number) => void
+  deleteNote: (noteId: number) => void;
 }
 
 // CONTEXT -------------
@@ -97,7 +98,7 @@ export const ContractContextProvider = ({
     toggleNoteMode: {
       opened: false,
       type: ContractNoteLabelType.ADD_NOTE,
-      noteId: 0
+      noteId: 0,
     },
     allNotes: [],
   });
@@ -128,15 +129,24 @@ export const ContractContextProvider = ({
           payload: { ...state, refresh: true },
         })
       );
+      option.cryptonoteContract.events.NoteDeleted(() => {
+        dispatch({
+          type: ContractReducerActionKind.SET_CONTRACT,
+          payload: { ...state, refresh: true },
+        });
+      });
     });
-  }, [state.refresh, state.toggleNoteMode, state]);
+  }, [state.refresh, state.toggleNoteMode]);
 
   useEffect(() => {
     if (state.cryptonoteContract) {
-      state.cryptonoteContract.methods.getAllNotes().call().then((allNotes: string[]) => 
-      dispatch({
+      state.cryptonoteContract.methods.getAllNotes().call({ from: state.addressAccount }).then((allNotes: string[]) =>
+          dispatch({
             type: ContractReducerActionKind.SET_ALL_NOTES,
-            payload: { ...state, allNotes },
+            payload: {
+              ...state,
+              allNotes: allNotes.filter((note) => note[1].length !== 0),
+            },
           })
         );
     }
@@ -153,13 +163,14 @@ export const ContractContextProvider = ({
         toggleNoteMode: {
           opened: false,
           type: ContractNoteLabelType.SHARE_NOTE,
-          noteId: Number(noteId)
+          noteId: Number(noteId),
         },
       },
     });
   };
+
   const editNote: ContextProvider["editNote"] = (value, noteId) => {
-    if (noteId in state.allNotes && value) {
+    if (noteId && value) {
       state.cryptonoteContract.methods.editNote(noteId, value).send({ from: state.addressAccount });
     }
     dispatch({
@@ -169,25 +180,41 @@ export const ContractContextProvider = ({
         toggleNoteMode: {
           opened: false,
           type: ContractNoteLabelType.EDIT_NOTE,
-          noteId: Number(noteId)
+          noteId: Number(noteId),
         },
       },
     });
   };
-  const setToggleNoteMode: ContextProvider["setToggleNoteMode"] = (value, type, noteId) => {
+
+  const setToggleNoteMode: ContextProvider["setToggleNoteMode"] = ( value, type, noteId) => {
     dispatch({
       type: ContractReducerActionKind.TOGGLE_NOTE_MODAL,
-      payload: { ...state, toggleNoteMode: { opened: value, type: type, noteId: noteId ? noteId : 0 } },
+      payload: {
+        ...state,
+        toggleNoteMode: {
+          opened: value,
+          type: type,
+          noteId: noteId ? noteId : 0,
+        },
+      },
     });
   };
 
   const addNote: ContextProvider["addNode"] = (value) => {
-    state.cryptonoteContract.methods.createNotes(value).send({ from: state.addressAccount });
+    if (value) {
+      state.cryptonoteContract.methods.createNotes(value).send({ from: state.addressAccount });
+    }
   };
 
-  const deleteNote: ContextProvider['deleteNote'] = (noteId) => {
+  const deleteNote: ContextProvider["deleteNote"] = (noteId) => {
+    if (noteId) {
       state.cryptonoteContract.methods.deleteNote(noteId).send({ from: state.addressAccount });
-  }
+    }
+    dispatch({
+      type: ContractReducerActionKind.DELETE_NOTE,
+      payload: { ...state, refresh: true },
+    });
+  };
 
   return (
     <ContractContext.Provider
@@ -202,7 +229,7 @@ export const ContractContextProvider = ({
         addNode: (value) => addNote(value),
         shareNote: (userId, noteId) => shareNote(userId, noteId),
         editNote: (noteId, value) => editNote(noteId, value),
-        deleteNote: (noteId) => deleteNote(noteId)
+        deleteNote: (noteId) => deleteNote(noteId),
       }}
     >
       {children}

@@ -9,14 +9,14 @@ export const Contract = () => {
     addressAccount,
     networkId,
     toggleNoteMode, 
-    allNotes
+    allNotes,
   } = useContractState();
 
   return (
     <>
       {toggleNoteMode.opened ? <ContractNoteModal /> : null}
       <div className="sm:p-24 p-4">
-        <ContractAccount addressAccount={addressAccount} networkId={networkId} notesCount={allNotes.length}/>
+        <ContractAccount addressAccount={addressAccount} networkId={networkId} notesCount={allNotes ? allNotes.length : 0}/>
         <ContractNavigationLabel/>
         <ContractNotesList/>
       </div>

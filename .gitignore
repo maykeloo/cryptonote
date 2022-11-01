@@ -12,8 +12,9 @@
 /.next/
 /out/
 
-# production
-/build
+# # production
+# /build  // change on production
+
 
 # misc
 .DS_Store

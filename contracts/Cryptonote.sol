@@ -35,7 +35,6 @@ contract Cryptonote {
     );
     
     function createNotes(string memory _content,/*string memory _imageHash*/ uint _priority) public {
-        require(_priority in priority);
         //if(bytes(_imageHash).length != 0){
             //imageUpload(_imageHash);
         uint noteCount = notesCount[msg.sender];

@@ -5,20 +5,26 @@ import { ContractNoteLabelType, useContractState } from "../ContractContext";
 interface ContractNoteProps {
   id: string;
   text: string;
+  timestamp: string;
+  priority:number;
 }
+export const ContractNote = ({ id, text, timestamp, priority}: ContractNoteProps) => {
 
-export const ContractNote = ({ id, text }: ContractNoteProps) => {
   const { setToggleNoteMode, deleteNote } = useContractState()
 
   return (
     <>
     <div className="group">
+      <div>{timestamp}</div>
       <div className="bg-orange-300/80 text-white p-4 rounded-xl relative shadow-lg min-h-[10rem]">
         <div className="absolute -top-4 left-1/2 -translate-x-1/2 h-[35px] w-[35px]">
           <Image src={pin} width={35} height={35} alt="pin icon" />
         </div>
         <div className="absolute -top-2 -left-2 bg-black w-7 h-7 flex justify-center items-center rounded-full">
           {id}
+        </div>
+        <div className="absolute -top-2 -right-2 bg-red-900 w-7 h-7 flex justify-center items-center rounded-full">
+          {priority}
         </div>
         <div>{text}</div>
       </div>

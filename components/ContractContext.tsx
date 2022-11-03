@@ -12,6 +12,7 @@ enum ContractReducerActionKind {
   TOGGLE_NOTE_MODAL = "TOGGLE_NOTE_MODAL",
   SET_REFRESH = "SET_REFRESH",
   SET_ALL_NOTES = "SET_ALL_NOTES",
+  SET_PRIORITYS = "SET_PRIORITYS",
   DELETE_NOTE = "DELETE_NOTE",
 }
 
@@ -37,11 +38,12 @@ interface Contract {
     noteId: number;
   };
   allNotes: string[];
+  prioritys: number[];
 }
 
 interface ContextProvider extends Contract {
   setToggleNoteMode: (state: boolean, type: ContractNoteLabelType, noteId?: number) => void;
-  addNode: (value: string) => void;
+  addNode: (value: string, file: any, priority: number) => void;
   shareNote: (userId: number, nodeId: number) => void;
   editNote: (value: string, noteId: number) => void;
   deleteNote: (noteId: number) => void;
@@ -63,6 +65,7 @@ const contractReducer = (state: Contract, action: ContractReducerAction) => {
         refresh: payload.refresh,
         toggleNoteMode: payload.toggleNoteMode,
         allNotes: payload.allNotes,
+        prioritys: payload.prioritys
       };
     case ContractReducerActionKind.TOGGLE_NOTE_MODAL:
       return {
@@ -78,6 +81,11 @@ const contractReducer = (state: Contract, action: ContractReducerAction) => {
       return {
         ...state,
         allNotes: payload.allNotes,
+      };
+    case ContractReducerActionKind.SET_PRIORITYS:
+      return {
+        ...state,
+        prioritys: payload.prioritys
       };
     default:
       return state;
@@ -101,6 +109,7 @@ export const ContractContextProvider = ({
       noteId: 0,
     },
     allNotes: [],
+    prioritys: []
   });
 
   useEffect(() => {
@@ -115,6 +124,7 @@ export const ContractContextProvider = ({
           refresh: false,
           toggleNoteMode: state.toggleNoteMode,
           allNotes: state.allNotes,
+          prioritys: state.prioritys
         },
       });
       option.cryptonoteContract.events.NoteCreated(() =>
@@ -140,12 +150,21 @@ export const ContractContextProvider = ({
 
   useEffect(() => {
     if (state.cryptonoteContract) {
+      state.cryptonoteContract.methods._getPriority().call().then((prioritys: number[]) =>
+          dispatch({
+            type: ContractReducerActionKind.SET_PRIORITYS,
+            payload: {
+              ...state,
+              prioritys: prioritys,
+            },
+          })
+      );
       state.cryptonoteContract.methods.getAllNotes().call({ from: state.addressAccount }).then((allNotes: string[]) =>
           dispatch({
             type: ContractReducerActionKind.SET_ALL_NOTES,
             payload: {
               ...state,
-              allNotes: allNotes.filter((note) => note[1].length !== 0),
+              allNotes: allNotes.filter((note) => note[1].length !== 0).sort((a: any,b: any) => b[3] - a[3]),
             },
           })
         );
@@ -200,9 +219,9 @@ export const ContractContextProvider = ({
     });
   };
 
-  const addNote: ContextProvider["addNode"] = (value) => {
+  const addNote: ContextProvider["addNode"] = (value,file,priority) => {
     if (value) {
-      state.cryptonoteContract.methods.createNotes(value).send({ from: state.addressAccount });
+      state.cryptonoteContract.methods.createNotes(value,priority).send({ from: state.addressAccount });
     }
   };
 
@@ -225,8 +244,9 @@ export const ContractContextProvider = ({
         refresh: state.refresh,
         toggleNoteMode: state.toggleNoteMode,
         allNotes: state.allNotes,
+        prioritys: state.prioritys,
         setToggleNoteMode: (state, type, noteId) => setToggleNoteMode(state, type, noteId),
-        addNode: (value) => addNote(value),
+        addNode: (value,file,priority) => addNote(value,file,priority),
         shareNote: (userId, noteId) => shareNote(userId, noteId),
         editNote: (noteId, value) => editNote(noteId, value),
         deleteNote: (noteId) => deleteNote(noteId),

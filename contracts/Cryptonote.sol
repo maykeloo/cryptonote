@@ -15,12 +15,14 @@ contract Cryptonote {
         string text;
         uint timestamp;
         uint priority;
-        //string[] imageHashList;
+        string[] imageHashList;
+        string[] imageNameList;
     }
 
     mapping(address => mapping(uint => Note)) public notes;
     mapping(address => uint) public notesCount;
     mapping (address => string[]) public imageHashList;
+    mapping (address => string[]) public imageNameList;
     uint[] public priority = [1,2,3,4,5];
     event NoteCreated(
         uint id,
@@ -34,7 +36,7 @@ contract Cryptonote {
         uint id
     );
     
-    function createNotes(string memory _content,/*string memory _imageHash*/ uint _priority) public {
+    function createNotes(string memory _content,uint _priority,string memory _imageHash, string memory _imageName) public {
         bool listContainPriority = false;
         for (uint256 index = 0; index < priority.length; index++) {
             if(_priority == priority[index]){
@@ -42,20 +44,21 @@ contract Cryptonote {
             }
         }
         if(listContainPriority){
+            imageUpload(_imageHash, _imageName);
             uint noteCount = notesCount[msg.sender];
-            notes[msg.sender][noteCount] = Note(noteCount, _content, block.timestamp, _priority/*imageHashList[msg.sender]*/);
+            notes[msg.sender][noteCount] = Note(noteCount, _content, block.timestamp, _priority,imageHashList[msg.sender], imageNameList[msg.sender]);
             notesCount[msg.sender]++;
             emit NoteCreated(noteCount, _content);
         }
-        //if(bytes(_imageHash).length != 0){
-            //imageUpload(_imageHash);
-      
-        //}
+        
     }
 
 
-    function imageUpload(string memory _imageHash) private{
-        imageHashList[msg.sender].push(_imageHash);
+    function imageUpload(string memory _imageHash, string memory _imageName) private{
+        if(bytes(_imageHash).length != 0 ){
+            imageHashList[msg.sender].push(_imageHash);
+            imageNameList[msg.sender].push(_imageName);
+        }
     }
     function deleteNote(uint _noteId) public {
         delete notes[msg.sender][_noteId].text;
@@ -74,7 +77,7 @@ contract Cryptonote {
     function _shareNotes(address to, uint noteId) public returns (bool) {
         address noteOwner = msg.sender;
         Note storage note = notes[noteOwner][noteId];
-        notes[to][notesCount[to]] = Note(notesCount[to],note.text,block.timestamp,note.priority);
+        notes[to][notesCount[to]] = Note(notesCount[to],note.text,block.timestamp,note.priority,note.imageHashList, note.imageNameList);
         notesCount[to]++;
         return true;
     }

@@ -6,6 +6,7 @@ import {
   useReducer,
 } from "react";
 import { load } from "../utils/utils";
+import { Web3Storage } from "web3.storage";
 
 enum ContractReducerActionKind {
   SET_CONTRACT = "SET_CONTRACT",
@@ -98,6 +99,8 @@ export const ContractContextProvider = ({
 }: {
   children: ReactNode;
 }) => {
+  const ipfsClient = new Web3Storage({ token: String(process.env.IPFS_TOKEN)})
+
   const [state, dispatch] = useReducer(contractReducer, {
     addressAccount: 0,
     networkId: 0,
@@ -221,7 +224,15 @@ export const ContractContextProvider = ({
 
   const addNote: ContextProvider["addNode"] = (value,file,priority) => {
     if (value) {
-      state.cryptonoteContract.methods.createNotes(value,priority).send({ from: state.addressAccount });
+      let remoteFileAddredd: any = "";
+      if(file.files.length){
+        const fileName = file.files[0].name;
+        remoteFileAddredd = ipfsClient.put(file.files).then((fileAddress) => state.cryptonoteContract.methods.createNotes(value,priority,fileAddress,fileName).send({ from: state.addressAccount }))
+      }
+      else{
+        state.cryptonoteContract.methods.createNotes(value,priority,"").send({ from: state.addressAccount });
+      }
+      
     }
   };
 

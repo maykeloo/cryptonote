@@ -35,12 +35,21 @@ contract Cryptonote {
     );
     
     function createNotes(string memory _content,/*string memory _imageHash*/ uint _priority) public {
+        bool listContainPriority = false;
+        for (uint256 index = 0; index < priority.length; index++) {
+            if(_priority == priority[index]){
+                listContainPriority = true;
+            }
+        }
+        if(listContainPriority){
+            uint noteCount = notesCount[msg.sender];
+            notes[msg.sender][noteCount] = Note(noteCount, _content, block.timestamp, _priority/*imageHashList[msg.sender]*/);
+            notesCount[msg.sender]++;
+            emit NoteCreated(noteCount, _content);
+        }
         //if(bytes(_imageHash).length != 0){
             //imageUpload(_imageHash);
-        uint noteCount = notesCount[msg.sender];
-        notes[msg.sender][noteCount] = Note(noteCount, _content, block.timestamp, _priority/*imageHashList[msg.sender]*/);
-        notesCount[msg.sender]++;
-        emit NoteCreated(noteCount, _content);
+      
         //}
     }
 

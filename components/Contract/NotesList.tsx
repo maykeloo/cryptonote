@@ -17,7 +17,7 @@ export const ContractNotesList = () => {
       <div className="sm:grid-cols-3 grid-cols-1 grid gap-8">
         {notes
           ? notes.map((note) => (
-              <ContractNote key={note[0]} id={note[0]} text={note[1]} timestamp={Date(Number(note[2]))} priority={Number(note[3])} />
+              <ContractNote key={note[0]} id={note[0]} text={note[1]} timestamp={new Date(Number(note[2]) * 1000).toDateString()} priority={Number(note[3])} />
             ))
           : null}
       </div>

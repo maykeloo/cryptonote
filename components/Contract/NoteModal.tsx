@@ -16,7 +16,7 @@ export const ContractNoteModal = () => {
                               {/* ADD NOTE */}
                               {toggleNoteMode.type === ContractNoteLabelType.ADD_NOTE ? <p className="text-white font-semibold text-2xl">Add your note...</p> : null}
                               {toggleNoteMode.type === ContractNoteLabelType.ADD_NOTE ?
-                                    <select ref={prioritySelectRef} className="bg-read-200 border border-red-300 text-red-300 text-sm rounded-lg focus:ring-red-300 focus:border-red-300 block w-full p-1 dark:bg-red-300 dark:border-red-300 dark:placeholder-red-400 dark:text-white dark:focus:ring-red-300 dark:focus:border-rd-300">
+                                    <select ref={prioritySelectRef} className="bg-gray-100 border border-gray-300  text-sm rounded-lg  block w-full p-1  dark:text-black  ">
                                        {prioritys
                                           ? prioritys.map((priority) => (
                                                 <option key={priority} value={priority}>{priority}</option>

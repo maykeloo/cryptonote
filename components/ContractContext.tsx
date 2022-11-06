@@ -230,7 +230,7 @@ export const ContractContextProvider = ({
         remoteFileAddredd = ipfsClient.put(file.files).then((fileAddress) => state.cryptonoteContract.methods.createNotes(value,priority,fileAddress,fileName).send({ from: state.addressAccount }))
       }
       else{
-        state.cryptonoteContract.methods.createNotes(value,priority,"").send({ from: state.addressAccount });
+        state.cryptonoteContract.methods.createNotes(value,priority,remoteFileAddredd,"").send({ from: state.addressAccount });
       }
       
     }

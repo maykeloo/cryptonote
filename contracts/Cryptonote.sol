@@ -62,6 +62,7 @@ contract Cryptonote {
     }
     function deleteNote(uint _noteId) public {
         delete notes[msg.sender][_noteId].text;
+        notesCount[msg.sender]--;
         emit NoteDeleted(_noteId);
     }
     

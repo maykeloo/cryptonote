@@ -32,6 +32,7 @@ interface Contract {
   addressAccount: number;
   networkId: number;
   cryptonoteContract: any;
+  MSCBSellTokenContract:any;
   refresh: boolean;
   toggleNoteMode: {
     opened: boolean;
@@ -63,6 +64,7 @@ const contractReducer = (state: Contract, action: ContractReducerAction) => {
         addressAccount: payload.addressAccount,
         networkId: payload.networkId,
         cryptonoteContract: payload.cryptonoteContract,
+        MSCBSellTokenContract: payload.MSCBSellTokenContract,
         refresh: payload.refresh,
         toggleNoteMode: payload.toggleNoteMode,
         allNotes: payload.allNotes,
@@ -105,6 +107,7 @@ export const ContractContextProvider = ({
     addressAccount: 0,
     networkId: 0,
     cryptonoteContract: 0,
+    MSCBSellTokenContract: 0,
     refresh: true,
     toggleNoteMode: {
       opened: false,
@@ -123,6 +126,7 @@ export const ContractContextProvider = ({
         payload: {
           addressAccount: option.addressAccount,
           cryptonoteContract: option.cryptonoteContract,
+          MSCBSellTokenContract: option.MSCBSaleToken,
           networkId: option.networkId,
           refresh: false,
           toggleNoteMode: state.toggleNoteMode,
@@ -251,6 +255,7 @@ export const ContractContextProvider = ({
       value={{
         addressAccount: state.addressAccount,
         cryptonoteContract: state.cryptonoteContract,
+        MSCBSellTokenContract: state.MSCBSellTokenContract,
         networkId: state.networkId,
         refresh: state.refresh,
         toggleNoteMode: state.toggleNoteMode,

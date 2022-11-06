@@ -1,11 +1,14 @@
 import Web3 from "web3";
 import CryptonoteContractJson from '../build/contracts/Cryptonote.json'
+import MSCBTokenSaleJson from '../build/contracts/MSCBSaleToken.json'
 
 export const load = async () =>{
     await loadWeb3();
     const addressAccount = await loadAccount();
     const {networkId, cryptonoteContract } = await loadNetworkId();
-    return { addressAccount, networkId, cryptonoteContract}
+    const MSCBSaleToken = await loadTokenSale();
+
+    return { addressAccount, networkId, cryptonoteContract, MSCBSaleToken}
 }
 
 const loadNetworkId = async () => {
@@ -20,6 +23,21 @@ const loadNetworkId = async () => {
     }
 
     return {networkId,cryptonoteContract};
+}
+
+const loadTokenSale = async () => {
+    const networkId = await web3.eth.net.getId();
+    const MSCBSaleToken = MSCBTokenSaleJson.networks[networkId];
+    let MSCBSaleTokenContract = null;
+    if(MSCBSaleToken){
+        MSCBSaleTokenContract = new window.web3.eth.Contract(MSCBTokenSaleJson.abi,MSCBSaleToken.address);
+        MSCBSaleTokenContract.setProvider(web3.eth.currentProvider)
+        //MSCBSaleTokenContract.methods.buyTokens(1).send({from: '0x263fb4ffc3741ce1e1d71c499074a9547cf05f5b',gasLimit: "21000"})
+    } else {
+        window.alert("No contract are deployed on this network sorry")
+    }
+    return {MSCBSaleTokenContract};
+
 }
 
 const loadAccount = async () => {

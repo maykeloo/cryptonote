@@ -15,8 +15,10 @@ contract MSCB is IMSCB{
 
     uint256 private _totalSupply; 
 
+    address private _ownerAddress;
 
     constructor()  public{
+        _ownerAddress = msg.sender;
         _name = "MSCB";
         _symbol = "MSCB-TOKEN";
         _totalSupply = 10000000;

@@ -19,11 +19,12 @@ contract MSCBSaleToken{
     event Received(
         address _received
     );
-    constructor()  public{
+    constructor(MSCB mscb)  public{
         _sellStatus = true;
         _owner = msg.sender;
-        _tokenPrice = 1000000;
+        _tokenPrice = 1000;
         _tokenSold = 0;
+        _MSCB = mscb;
     } 
 
     modifier _onlyOwner {
@@ -43,8 +44,13 @@ contract MSCBSaleToken{
     }
 
     function buyTokens(uint256 _amount) public payable{
-        require(_MSCB.transfer(msg.sender, _amount));
+        _MSCB.transferFrom(_owner, msg.sender, _amount);
+        payable (_owner).transfer(msg.value);
         _tokenSold += _amount;
+    }
+    function getBalance() public view returns (string memory){
+        string memory name =  _MSCB.name();
+        return name;
     }
     function pay() public payable {
         emit Received(msg.sender);

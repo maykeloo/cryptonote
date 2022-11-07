@@ -48,8 +48,8 @@ contract MSCB is IMSCB{
     }
 
     function transferFrom(address _from, address _to, uint256 _amount) public virtual override returns (bool){
-        require(_amount <= balances[_from]);
-        require(_amount <= allowances[_from][_to]);
+        //require(_amount <= balances[_from]);
+        //require(_amount <= allowances[_from][_to]);
         _transfer(_from, _to, _amount);
         emit Transfer(_from, _to, _amount);
         return true;
@@ -64,9 +64,9 @@ contract MSCB is IMSCB{
         return 4;
     }
     function _transfer(address _from, address _to, uint256 _amount) internal {
-        require(_from != address(0));
-        require(_to != address(0));
-        require(balanceOf(_from) >= _amount);
+        //require(_from != address(0));
+        //require(_to != address(0));
+        //require(balanceOf(_from) >= _amount);
         balances[_from] -= _amount;
         balances[_to] += _amount;
     }

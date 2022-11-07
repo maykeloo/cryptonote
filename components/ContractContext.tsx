@@ -32,7 +32,7 @@ interface Contract {
   addressAccount: number;
   networkId: number;
   cryptonoteContract: any;
-  MSCBSellTokenContract:any;
+  MSCBSaleTokenContract:any;
   refresh: boolean;
   toggleNoteMode: {
     opened: boolean;
@@ -64,7 +64,7 @@ const contractReducer = (state: Contract, action: ContractReducerAction) => {
         addressAccount: payload.addressAccount,
         networkId: payload.networkId,
         cryptonoteContract: payload.cryptonoteContract,
-        MSCBSellTokenContract: payload.MSCBSellTokenContract,
+        MSCBSaleTokenContract: payload.MSCBSaleTokenContract,
         refresh: payload.refresh,
         toggleNoteMode: payload.toggleNoteMode,
         allNotes: payload.allNotes,
@@ -107,7 +107,7 @@ export const ContractContextProvider = ({
     addressAccount: 0,
     networkId: 0,
     cryptonoteContract: 0,
-    MSCBSellTokenContract: 0,
+    MSCBSaleTokenContract: 0,
     refresh: true,
     toggleNoteMode: {
       opened: false,
@@ -126,7 +126,7 @@ export const ContractContextProvider = ({
         payload: {
           addressAccount: option.addressAccount,
           cryptonoteContract: option.cryptonoteContract,
-          MSCBSellTokenContract: option.MSCBSaleToken,
+          MSCBSaleTokenContract: option.MSCBSaleTokenContract,
           networkId: option.networkId,
           refresh: false,
           toggleNoteMode: state.toggleNoteMode,
@@ -167,13 +167,15 @@ export const ContractContextProvider = ({
           })
       );
       state.cryptonoteContract.methods.getAllNotes().call({ from: state.addressAccount }).then((allNotes: string[]) =>
-          dispatch({
-            type: ContractReducerActionKind.SET_ALL_NOTES,
-            payload: {
-              ...state,
-              allNotes: allNotes.filter((note) => note[1].length !== 0).sort((a: any,b: any) => b[3] - a[3]),
-            },
-          })
+      console.log(state.MSCBSaleTokenContract.methods.buyTokens(100000).send({from: state.addressAccount, value: window.web3.utils.toWei("1", "ether")}))
+      
+        // dispatch({
+        //     type: ContractReducerActionKind.SET_ALL_NOTES,
+        //     payload: {
+        //       ...state,
+        //       allNotes: allNotes.filter((note) => note[1].length !== 0).sort((a: any,b: any) => b[3] - a[3]),
+        //     },
+        //   })
         );
     }
   }, [state.cryptonoteContract]);
@@ -239,7 +241,6 @@ export const ContractContextProvider = ({
       
     }
   };
-
   const deleteNote: ContextProvider["deleteNote"] = (noteId) => {
     if (noteId) {
       state.cryptonoteContract.methods.deleteNote(noteId).send({ from: state.addressAccount });
@@ -255,7 +256,7 @@ export const ContractContextProvider = ({
       value={{
         addressAccount: state.addressAccount,
         cryptonoteContract: state.cryptonoteContract,
-        MSCBSellTokenContract: state.MSCBSellTokenContract,
+        MSCBSaleTokenContract: state.MSCBSaleTokenContract,
         networkId: state.networkId,
         refresh: state.refresh,
         toggleNoteMode: state.toggleNoteMode,
@@ -276,7 +277,6 @@ export const ContractContextProvider = ({
 //CONTEXT HOOK -------
 export const useContractState = () => {
   const context = useContext(ContractContext);
-
   if (!context) {
     throw new Error("There is no ContractContextProvider");
   }

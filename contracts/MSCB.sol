@@ -48,25 +48,25 @@ contract MSCB is IMSCB{
     }
 
     function transferFrom(address _from, address _to, uint256 _amount) public virtual override returns (bool){
-        //require(_amount <= balances[_from]);
-        //require(_amount <= allowances[_from][_to]);
+        require(_amount <= balances[_from]);
+        require(_amount <= allowances[_from][_to]);
         _transfer(_from, _to, _amount);
         emit Transfer(_from, _to, _amount);
         return true;
     }
 
     function approve(address _spender, uint256 _amount) public virtual override returns (bool){
-        _approve(msg.sender,_spender,_amount);
+        _approve(_ownerAddress,_spender,_amount);
         return true;
     }
 
      function decimals() public pure returns (uint8) {
-        return 4;
+        return 18;
     }
     function _transfer(address _from, address _to, uint256 _amount) internal {
-        //require(_from != address(0));
-        //require(_to != address(0));
-        //require(balanceOf(_from) >= _amount);
+        require(_from != address(0));
+        require(_to != address(0));
+        require(balanceOf(_from) >= _amount);
         balances[_from] -= _amount;
         balances[_to] += _amount;
     }
@@ -77,6 +77,10 @@ contract MSCB is IMSCB{
         allowances[_owner][_spender] = _amount;
         emit Approval(_owner, _spender, _amount);
     }
+ 
+    receive() external payable {}
+
+    fallback() external payable {}
 
 
 

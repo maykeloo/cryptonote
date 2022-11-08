@@ -167,8 +167,9 @@ export const ContractContextProvider = ({
           })
       );
       state.cryptonoteContract.methods.getAllNotes().call({ from: state.addressAccount }).then((allNotes: string[]) =>
-      console.log(state.MSCBSaleTokenContract.methods.buyTokens(100000).send({from: state.addressAccount, value: window.web3.utils.toWei("1", "ether")}))
-      
+      //console.log(state.MSCBSaleTokenContract.methods.buyTokens(100000).send({from: state.addressAccount, value: window.web3.utils.toWei("1", "ether")}))
+      state.MSCBSaleTokenContract.methods.balanceOfSM().call().then( t => console.log(window.web3.utils.fromWei(t)))
+      //console.log('g')
         // dispatch({
         //     type: ContractReducerActionKind.SET_ALL_NOTES,
         //     payload: {
